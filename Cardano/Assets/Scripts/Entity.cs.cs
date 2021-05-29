@@ -8,6 +8,8 @@ public class Entity
 {
   [Header("Name")]
     public string name;
+    public string id;
+    public bool isLocalPlayer;
     public int level;
  
     [Header("Health")]

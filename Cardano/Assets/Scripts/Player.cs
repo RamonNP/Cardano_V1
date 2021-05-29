@@ -25,6 +25,9 @@ public class Player : MonoBehaviour
     [Header("Player UI Panels")]
     public GameObject attributesPanel;
  
+    [Header("Player Name")]
+    public Text nameText;
+
     [Header("Player UI")]
     public Slider health;
     public Slider mana;
@@ -61,10 +64,18 @@ public class Player : MonoBehaviour
  
     void Start()
     {
-        if (manager == null)
-        {
-            Debug.LogError("Você precisa anexar o game manager aqui no player");
-            return;
+        health = GameObject.FindGameObjectWithTag ("HPSLider").GetComponent<Slider>();
+        mana = GameObject.Find("MPSLider").GetComponent<Slider>();
+        stamina = GameObject.Find("StaminaSLider").GetComponent<Slider>();
+        exp = GameObject.Find("XpSLider").GetComponent<Slider>();
+
+        expText = GameObject.Find ("ExpText").GetComponent<Text>();
+        levelText = GameObject.Find ("LevelText").GetComponent<Text>();
+        
+        
+
+        if (manager == null){
+            manager = FindObjectOfType(typeof(GameManager)) as GameManager;
         }
  
         entity.maxHealth = manager.CalculateHealth(entity);
@@ -94,7 +105,7 @@ public class Player : MonoBehaviour
         StartCoroutine(RegenHealth());
         StartCoroutine(RegenMana());
  
-        UpdatePoints();
+        
         SetupUIButtons();
     }
  
@@ -111,6 +122,12 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(attributesKey))
         {
             attributesPanel.SetActive(!attributesPanel.activeSelf);
+            strTxt = GameObject.Find ("StrengthText").GetComponent<Text>();
+            resTxt = GameObject.Find ("ResistenceText").GetComponent<Text>();
+            intTxt = GameObject.Find ("IntelligenceText").GetComponent<Text>();
+            wilTxt = GameObject.Find ("WillpowerText").GetComponent<Text>();
+            pointsTxt = GameObject.Find ("PointsValuesTxt").GetComponent<Text>();
+            UpdatePoints();
         }
  
         health.value = entity.currentHealth;
@@ -234,7 +251,7 @@ public class Player : MonoBehaviour
     }
  
     public void SetupUIButtons()
-    {
+    {/*
         strPositiveBtn.onClick.AddListener(() => AddPoints(1));
         resPositiveBtn.onClick.AddListener(() => AddPoints(2));
         intPositiveBtn.onClick.AddListener(() => AddPoints(3));
@@ -243,7 +260,7 @@ public class Player : MonoBehaviour
         strNegativeBtn.onClick.AddListener(() => RemovePoints(1));
         resNegativeBtn.onClick.AddListener(() => RemovePoints(2));
         intNegativeBtn.onClick.AddListener(() => RemovePoints(3));
-        wilNegativeBtn.onClick.AddListener(() => RemovePoints(4));
+        wilNegativeBtn.onClick.AddListener(() => RemovePoints(4)); */
     }
  
     public void AddPoints(int index)

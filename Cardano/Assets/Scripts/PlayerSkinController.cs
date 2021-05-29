@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class PlayerSkinController : MonoBehaviour
 {
     public GameObject changeSkinPainel;
-    private ChangeSkin changeSkin;
+    public ChangeSkin changeSkin;
     public GameObject SkCabelo;
     public GameObject SkCalca;
     public GameObject SkCapa;
@@ -18,11 +18,14 @@ public class PlayerSkinController : MonoBehaviour
     void Start()
     {
         //changeSkinPainel.SetActive(false); 
-        changeSkin = changeSkinPainel.GetComponent<ChangeSkin>();
+        //changeSkin = GameObject.Find("ChangeSkin").GetComponent<ChangeSkin>();
     }
 
     // Update is called once per frame
     void Update() {
+        if(!this.gameObject.GetComponent<Player>().entity.isLocalPlayer) {
+            return;
+        }
         if (Input.GetKeyDown(KeyCode.P))
         {
             skinAtivo = !skinAtivo;

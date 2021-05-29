@@ -20,10 +20,12 @@ public class PlayerController : MonoBehaviour
     public KeyCode interactKey = KeyCode.E;
     bool canTeleport = false;
     Region tmpRegion;
+    private bool lastWalking;
  
     // Start is called before the first frame update
     void Start()
     {
+        //PlayerController new_player = Instantiate (NetworkManager.instance.playerPrefab, new Vector3 (0, 0, 0), Quaternion.identity).GetComponent<PlayerController> ();
         isWalking = false; 
         rb2D = GetComponent<Rigidbody2D>(); 
         player = GetComponent<Player>();
@@ -32,43 +34,95 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        input_x = Input.GetAxisRaw("Horizontal");
-        input_y = Input.GetAxisRaw("Vertical");
-        isWalking = (input_x != 0 || input_y != 0);
-        movement = new Vector2(input_x, input_y);
-        /*
-        if (isWalking)
-        {
-            playerAnimator.SetFloat("input_x", input_x);
-            playerAnimator.SetFloat("input_y", input_y);
-        }*/ 
-        VerificaFlip();
-        playerAnimator.SetBool("isWalking", isWalking);
- 
-        if (player.entity.attackTimer < 0)
-            player.entity.attackTimer = 0;
-        else
-            player.entity.attackTimer -= Time.deltaTime;
- 
-        if(player.entity.attackTimer == 0 && !isWalking)
-        {
-            if (Input.GetButtonDown("Fire1"))
+        if(player.entity.isLocalPlayer) {
+
+            input_x = Input.GetAxisRaw("Horizontal");
+            input_y = Input.GetAxisRaw("Vertical");
+            isWalking = (input_x != 0 || input_y != 0);
+            movement = new Vector2(input_x, input_y);
+            /*
+            if (isWalking)
             {
-                playerAnimator.SetTrigger("attack");
-                player.entity.attackTimer = player.entity.cooldown;
- 
-                Attack();
+                playerAnimator.SetFloat("input_x", input_x);
+                playerAnimator.SetFloat("input_y", input_y);
+            }*/ 
+            VerificaFlip(input_x);
+            playerAnimator.SetBool("isWalking", isWalking);
+            if(isWalking && (lastWalking != isWalking)){
+                NetworkManager.instance.EmitAnimation ("isWalking", GetComponent<Player>().entity.id);
+                lastWalking = isWalking;
+            } else if (lastWalking != isWalking){
+                NetworkManager.instance.EmitAnimation ("Idle", GetComponent<Player>().entity.id);
+                lastWalking = isWalking;
             }
-        }    
-        if(canTeleport && tmpRegion != null && Input.GetKeyDown(interactKey)) 
-        {
-            this.transform.position = tmpRegion.warpLocation.position;
-        }     
-    }
     
+            if (player.entity.attackTimer < 0)
+                player.entity.attackTimer = 0;
+            else
+                player.entity.attackTimer -= Time.deltaTime;
+    
+            if(player.entity.attackTimer == 0 && !isWalking)
+            {
+                if (Input.GetButtonDown("Fire1"))
+                {
+                    playerAnimator.SetTrigger("attack");
+                    NetworkManager.instance.EmitAnimation ("attack", GetComponent<Player>().entity.id);
+                    player.entity.attackTimer = player.entity.cooldown;
+    
+                    Attack();
+                }
+            }    
+            if(canTeleport && tmpRegion != null && Input.GetKeyDown(interactKey)) 
+            {
+                this.transform.position = tmpRegion.warpLocation.position;
+            }     
+        }
+    }
+    public void UpdateAnimator(string animation){
+        switch (animation)
+        {
+            case "attack":
+                playerAnimator.SetTrigger("attack");
+                break;
+            case "isWalking":
+                isWalking = true;
+                playerAnimator.SetBool("isWalking", true);
+                break;
+            case "Idle":
+                playerAnimator.SetBool("isWalking", false);
+                isWalking = false;
+                break;
+        }
+    }
+    public void UpdateStatustoServer()
+	{
+		NetworkManager.instance.EmitPosAndRot (transform.position, transform.rotation, input_x);
+
+		//NetworkManager.instance.EmitAnimation ("IsWalk");
+
+
+	}
+
+
+	public void UpdatePosAndRot(Vector3 _pos, Quaternion _rot, float direction)
+	{
+		transform.position = _pos;
+		transform.rotation = _rot;
+
+        Vector3 theScale = transform.localScale;
+        if(direction < 0 && theScale.x > 0) {
+            Flip();
+        } else  if(direction > 0 && theScale.x < 0) {
+            Flip();
+        }
+
+	}
     private void FixedUpdate()
     {
-        rb2D.MovePosition(rb2D.position + movement * player.entity.speed * Time.fixedDeltaTime);
+        if(player.entity.isLocalPlayer) {
+            rb2D.MovePosition(rb2D.position + movement * player.entity.speed * Time.fixedDeltaTime);
+            UpdateStatustoServer();
+        }
     }
  
     private void OnTriggerEnter2D(Collider2D collider)
@@ -101,6 +155,7 @@ public class PlayerController : MonoBehaviour
  
     void Attack()
     {
+        //NetworkManager.instance.SendPingToServer();
         if (player.entity.target == null)
             return;
  
@@ -136,17 +191,21 @@ public class PlayerController : MonoBehaviour
         transform.localScale = theScale;
         lookLeft = !lookLeft;
     }
-    public void VerificaFlip() {
+    public void VerificaFlip(float x) {
+
+
          if (isWalking)
         {
             //playerAnimator.SetFloat("input_x", input_x);
             //playerAnimator.SetFloat("input_y", input_y);
-            if (input_x > 0 && lookLeft == true)
+            if (x > 0 && lookLeft == true)
             {
                 Flip();
-            } else if(input_x < 0 && lookLeft == false)
+                //NetworkManager.instance.EmitAnimation ("Flip", x.ToString(), GetComponent<Player>().entity.id);
+            } else if(x < 0 && lookLeft == false)
             {
                 Flip();
+                //NetworkManager.instance.EmitAnimation ("Flip", x.ToString(), GetComponent<Player>().entity.id);
             }
         }
     }

@@ -2,7 +2,15 @@
 #
 # Get latest from https://github.com/github/gitignore/blob/master/Unity.gitignore
 #
-/[Ll]ibrary/
+Cardano/*
+Cardano/[Tt]emp/
+Cardano/[Oo]bj/
+Cardano/[Bb]uild/
+Cardano/[Bb]uilds/
+Cardano/[Ll]ogs/
+Cardano/[Mm]emoryCaptures/
+
+
 /[Tt]emp/
 /[Oo]bj/
 /[Bb]uild/
@@ -60,3 +68,5 @@ crashlytics-build.properties
 
 Producao_n/*
 Testes_n/*
+
+
