@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 public class Player : MonoBehaviour
 { 
    public Entity entity;
+   public GameObject itemColetavel;
  
     [Header("Player Regen System")]
     public bool regenHPEnabled = true;
@@ -19,12 +21,17 @@ public class Player : MonoBehaviour
     [Header("Game Manager")]
     public GameManager manager;
  
+    [Header("Player Inventario")]
+    public int qtdPocoes;
+    public int qtdMana;
+    public int qtdFlechas;
     [Header("Player Shortcuts")]
     public KeyCode attributesKey = KeyCode.C;
  
     [Header("Player UI Panels")]
     public GameObject attributesPanel;
- 
+     
+    public float ShakeElapsedTime = 0f;
     [Header("Player Name")]
     public Text nameText;
 

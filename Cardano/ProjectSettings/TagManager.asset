@@ -8,6 +8,7 @@ TagManager:
   - Waypoint
   - Teleport
   - HPSLider
+  - Item
   layers:
   - Default
   - TransparentFX

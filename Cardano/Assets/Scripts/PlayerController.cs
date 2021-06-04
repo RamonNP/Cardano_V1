@@ -1,23 +1,46 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
- 
- [RequireComponent(typeof(Rigidbody2D))]
+using Cinemachine;
+using System;
+
+[RequireComponent(typeof(Rigidbody2D))]
  [RequireComponent(typeof(Player))]
 public class PlayerController : MonoBehaviour
 {
     public bool lookLeft;
+    public Sprite[] HelmetSprites;
 
-[HideInInspector] public Player player;
+    //[HideInInspector] 
+    [Header("Atalhos HUD")]
+    public GameObject inventory;
+    [Header("Cinemachine Camera Shake")]
+    public CinemachineVirtualCamera VirtualCamera;
+    public CinemachineBasicMultiChannelPerlin virtualCameraNoise;
+    public float ShakeDuration = 0.3f;          // Time the Camera Shake effect will last
+    public float ShakeAmplitude = 3.2f;         // Cinemachine Noise Profile Parameter
+    public float ShakeFrequency = 3.0f;         // Cinemachine Noise Profile Parameter
+
+    internal void usarItemArma(int idItem)
+    {
+        print("Implementar troca de arma ID:"+idItem);
+    }
+
+    public float ShakeElapsedTime = 0f;
+    [Header("Player")]
+    public Player player;
+    public GameObject PersonagemFlip;
     public Animator playerAnimator;
     float input_x = 0;
     float input_y = 0;
-    bool isWalking = false;
+    public bool isWalking = false;
  
     Rigidbody2D rb2D;
     Vector2 movement = Vector2.zero;
     [Header("Interact")]
     public KeyCode interactKey = KeyCode.E;
+    public KeyCode interactKeyI = KeyCode.I;
+    public KeyCode interactKeySpace = KeyCode.Space;
     bool canTeleport = false;
     Region tmpRegion;
     private bool lastWalking;
@@ -25,17 +48,23 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        HelmetSprites = Resources.LoadAll<Sprite>("Helmet") ;
         //PlayerController new_player = Instantiate (NetworkManager.instance.playerPrefab, new Vector3 (0, 0, 0), Quaternion.identity).GetComponent<PlayerController> ();
         isWalking = false; 
         rb2D = GetComponent<Rigidbody2D>(); 
         player = GetComponent<Player>();
+        // Get Virtual Camera Noise Profile
+        if (VirtualCamera != null){
+            virtualCameraNoise = VirtualCamera.GetCinemachineComponent<Cinemachine.CinemachineBasicMultiChannelPerlin>(); 
+        }
+        print(VirtualCamera);
     }
  
     // Update is called once per frame
     void Update()
     {
         if(player.entity.isLocalPlayer) {
-
+            cameraShake();
             input_x = Input.GetAxisRaw("Horizontal");
             input_y = Input.GetAxisRaw("Vertical");
             isWalking = (input_x != 0 || input_y != 0);
@@ -56,7 +85,7 @@ public class PlayerController : MonoBehaviour
                 lastWalking = isWalking;
             }
     
-            if (player.entity.attackTimer < 0)
+            if (player.entity.attackTimer <= 0)
                 player.entity.attackTimer = 0;
             else
                 player.entity.attackTimer -= Time.deltaTime;
@@ -72,10 +101,33 @@ public class PlayerController : MonoBehaviour
                     Attack();
                 }
             }    
+            if(Input.GetKeyDown(interactKeySpace)) {
+                if(player.itemColetavel != null){
+
+                    //GameObject obj = Instantiate (player.itemColetavel, new Vector3(0,0,0),Quaternion.identity);
+                    
+                    //sasa
+                    print("ALTERAR CAMINHO FIXO");
+                    this.GetComponent<Inventario>().itemInventario.Add(player.itemColetavel.GetComponent<Item>().pathItem);
+                    Destroy(player.itemColetavel);
+                    player.itemColetavel = null;
+                }
+
+            }
             if(canTeleport && tmpRegion != null && Input.GetKeyDown(interactKey)) 
             {
                 this.transform.position = tmpRegion.warpLocation.position;
             }     
+            if(Input.GetKeyDown(interactKeyI) && this.GetComponent<Inventario>().inventario.active == false) 
+            {
+                //print("Abrir Inventario");
+                this.GetComponent<Inventario>().inventario.SetActive(true);
+                this.GetComponent<Inventario>().carregarInventario();
+            } else if(Input.GetKeyDown(interactKeyI) && this.GetComponent<Inventario>().inventario.active == true){
+                this.GetComponent<Inventario>().limparItensCarregados();
+                this.GetComponent<Inventario>().inventario.SetActive(false);
+
+            } 
         }
     }
     public void UpdateAnimator(string animation){
@@ -137,6 +189,10 @@ public class PlayerController : MonoBehaviour
             tmpRegion = collider.GetComponent<Teleport>().region;
             canTeleport = true;
         }
+        if (collider.tag == "Item")
+        {
+            player.itemColetavel = collider.gameObject;
+        }
     }
  
     private void OnTriggerExit2D(Collider2D collider)
@@ -151,6 +207,11 @@ public class PlayerController : MonoBehaviour
             tmpRegion = null;
             canTeleport = false;
         }
+        if (collider.tag == "Item")
+        {
+            player.itemColetavel = null;
+        }
+        
     }
  
     void Attack()
@@ -186,11 +247,17 @@ public class PlayerController : MonoBehaviour
 
     private void Flip()
     {
-        Vector3 theScale = transform.localScale;
+        Vector3 theScale = PersonagemFlip.transform.localScale;
         theScale.x *= -1;
-        transform.localScale = theScale;
+        PersonagemFlip.transform.localScale = theScale;
         lookLeft = !lookLeft;
     }
+
+    public void ShakeShoot()
+    {
+        ShakeElapsedTime = ShakeDuration;
+    }
+
     public void VerificaFlip(float x) {
 
 
@@ -208,5 +275,40 @@ public class PlayerController : MonoBehaviour
                 //NetworkManager.instance.EmitAnimation ("Flip", x.ToString(), GetComponent<Player>().entity.id);
             }
         }
+    }
+     public void cameraShake() {
+         // If the Cinemachine componet is not set, avoid update
+        if (VirtualCamera != null && virtualCameraNoise != null)
+        {
+            // If Camera Shake effect is still playing
+            if (ShakeElapsedTime > 0)
+            {
+                // Set Cinemachine Camera Noise parameters
+                virtualCameraNoise.m_AmplitudeGain = ShakeAmplitude;
+                virtualCameraNoise.m_FrequencyGain = ShakeFrequency;
+
+                // Update Shake Timer
+                ShakeElapsedTime -= Time.deltaTime;
+            }
+            else
+            {
+                // If Camera Shake effect is over, reset variables
+                virtualCameraNoise.m_AmplitudeGain = 0f;
+                ShakeElapsedTime = 0f;
+            }
+        }
+    }
+    public void OpenInventory() {
+        //inventory.SetActive(true);
+        if(inventory.active == false) 
+        {
+            //print("Abrir Inventario");
+            this.GetComponent<Inventario>().inventario.SetActive(true);
+            this.GetComponent<Inventario>().carregarInventario();
+        } else if(inventory.active == true){
+            this.GetComponent<Inventario>().limparItensCarregados();
+            this.GetComponent<Inventario>().inventario.SetActive(false);
+
+        } 
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
  
@@ -41,9 +42,13 @@ public class Monster : MonoBehaviour
  
     Rigidbody2D rb2D;
     Animator animator;
+
+    //private NetworkManager networkManager;
  
     private void Start()
     {
+        //networkManager = FindObjectOfType(typeof(NetworkManager)) as NetworkManager;
+        //networkManager = NetworkManager.instance;
         rb2D = GetComponent<Rigidbody2D>();
         animator = this.transform.GetChild(0).GetComponent<Animator>();
         manager = GameObject.Find("GameManager").GetComponent<GameManager>();
@@ -78,6 +83,9 @@ public class Monster : MonoBehaviour
  
     private void Update()
     {
+        if(Input.GetKeyDown(KeyCode.Y)) {
+            DropItem();
+        }
         if (entity.dead)
             return;
  
@@ -98,6 +106,7 @@ public class Monster : MonoBehaviour
             else
             {
                 animator.SetBool("isWalking", false);
+                print("isWalking"+false);
             }
         }
         else
@@ -155,7 +164,6 @@ public class Monster : MonoBehaviour
  
         if(distanceToTarget <= arrivalDistance || distanceToTarget >= lastDistanceToTarget)
         {
-            animator.SetBool("isWalking", false);
  
             if(currentWaitTime <= 0)
             {
@@ -166,6 +174,8 @@ public class Monster : MonoBehaviour
  
                 targetWapoint = waypointList[currentWaypoint];
                 lastDistanceToTarget = Vector2.Distance(transform.position, targetWapoint.position);
+                animator.SetBool("isWalking", false);
+                //print("isWalking Patrol"+false);
  
                 currentWaitTime = waitTime;
             }
@@ -211,6 +221,8 @@ public class Monster : MonoBehaviour
  
                     Debug.Log("Inimigo atacou o player, Dmg: " + dmgResult);
                     entity.target.GetComponent<Player>().entity.currentHealth -= dmgResult;
+                    NetworkManager.instance.playerLocalInstance.GetComponent<PlayerController>().ShakeShoot();
+                    
                 }
             }
         }
@@ -223,13 +235,15 @@ public class Monster : MonoBehaviour
         entity.target = null;
  
         animator.SetBool("isWalking", false);
+        animator.SetBool("dead", true);
+
  
         // add exp no player
         Player player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         player.GainExp(rewardExperience);
  
         Debug.Log("O inimigo morreu: " + entity.name);
- 
+        DropItem();
         StopAllCoroutines();
         StartCoroutine(Respawn());
     }
@@ -237,12 +251,12 @@ public class Monster : MonoBehaviour
     IEnumerator Respawn()
     {
         yield return new WaitForSeconds(respawnTime);
- 
-        GameObject newMonster = Instantiate(prefab, transform.position, transform.rotation, null);
+        animator.SetBool("dead", false);
+        yield return new WaitForSeconds(1f);
+        GameObject newMonster = Instantiate(prefab, transform.position, Quaternion.identity, null);
         newMonster.name = prefab.name;
         newMonster.GetComponent<Monster>().entity.dead = false;
         newMonster.GetComponent<Monster>().entity.combatCoroutine = false;
- 
         Destroy(this.gameObject);
     }
 
@@ -261,5 +275,15 @@ public class Monster : MonoBehaviour
             {
                 Flip();
             }
+    }
+
+    public void DropItem() {
+        int id = Random.Range(0, 3);
+        var loadedObject = Resources.Load("Prefabs/Helmets/" + "Helmet"+id);
+        if (loadedObject == null)
+        {
+            throw new FileNotFoundException("...no file found - please check the configuration");
+        }
+        Instantiate(loadedObject, this.transform.position, Quaternion.identity);
     }
 }
