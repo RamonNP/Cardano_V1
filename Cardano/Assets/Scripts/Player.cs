@@ -125,17 +125,8 @@ public class Player : MonoBehaviour
         {
             Die();
         }
- 
-        if (Input.GetKeyDown(attributesKey))
-        {
-            attributesPanel.SetActive(!attributesPanel.activeSelf);
-            strTxt = GameObject.Find ("StrengthText").GetComponent<Text>();
-            resTxt = GameObject.Find ("ResistenceText").GetComponent<Text>();
-            intTxt = GameObject.Find ("IntelligenceText").GetComponent<Text>();
-            wilTxt = GameObject.Find ("WillpowerText").GetComponent<Text>();
-            pointsTxt = GameObject.Find ("PointsValuesTxt").GetComponent<Text>();
-            UpdatePoints();
-        }
+        calcularEquipamentos();
+        
  
         health.value = entity.currentHealth;
         mana.value = entity.currentMana;
@@ -146,6 +137,18 @@ public class Player : MonoBehaviour
  
         expText.text = String.Format("Exp: {0}/{1}", currentExp, expLeft);
         levelText.text = entity.level.ToString();
+    }
+    private void calcularEquipamentos() {
+        GameObject weapomPlayerEquipe = GetComponent<PlayerEquipController>().weapomPlayerEquipe;
+        GameObject helmetPlayerEquipe = GetComponent<PlayerEquipController>().helmetPlayerEquipe;
+        int atack = 0;
+        if(weapomPlayerEquipe.activeSelf) {
+            atack += weapomPlayerEquipe.GetComponent<Item>().atack;
+        }
+        if(helmetPlayerEquipe.activeSelf) {
+            atack += helmetPlayerEquipe.GetComponent<Item>().atack;
+        }
+        entity.damage = atack;
     }
  
     IEnumerator RegenHealth()
@@ -258,7 +261,7 @@ public class Player : MonoBehaviour
     }
  
     public void SetupUIButtons()
-    {/*
+    {
         strPositiveBtn.onClick.AddListener(() => AddPoints(1));
         resPositiveBtn.onClick.AddListener(() => AddPoints(2));
         intPositiveBtn.onClick.AddListener(() => AddPoints(3));
@@ -267,7 +270,7 @@ public class Player : MonoBehaviour
         strNegativeBtn.onClick.AddListener(() => RemovePoints(1));
         resNegativeBtn.onClick.AddListener(() => RemovePoints(2));
         intNegativeBtn.onClick.AddListener(() => RemovePoints(3));
-        wilNegativeBtn.onClick.AddListener(() => RemovePoints(4)); */
+        wilNegativeBtn.onClick.AddListener(() => RemovePoints(4)); 
     }
  
     public void AddPoints(int index)

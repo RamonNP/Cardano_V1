@@ -28,6 +28,9 @@ public class PlayerController : MonoBehaviour
 
     public float ShakeElapsedTime = 0f;
     [Header("Player")]
+    public Transform spawnArraw;
+    public GameObject prefabArraw;
+    public float speedArraw;
     public Player player;
     public GameObject PersonagemFlip;
     public Animator playerAnimator;
@@ -94,11 +97,18 @@ public class PlayerController : MonoBehaviour
             {
                 if (Input.GetButtonDown("Fire1"))
                 {
-                    playerAnimator.SetTrigger("attack");
-                    NetworkManager.instance.EmitAnimation ("attack", GetComponent<Player>().entity.id);
+                    string atack;
+                    if(GetComponent<PlayerEquipController>().weapomPlayerEquipe.GetComponent<Item>().itemType == ItemType.BEAST) {
+                        atack = "attackBeast";
+                    } else {
+                        atack = "attack";
+                    }
+                    playerAnimator.SetTrigger(atack);
+                    NetworkManager.instance.EmitAnimation (atack, GetComponent<Player>().entity.id);
                     player.entity.attackTimer = player.entity.cooldown;
     
-                    Attack();
+                    //Attack();
+                    AttackBeast();
                 }
             }    
             if(Input.GetKeyDown(interactKeySpace)) {
@@ -118,18 +128,33 @@ public class PlayerController : MonoBehaviour
             {
                 this.transform.position = tmpRegion.warpLocation.position;
             }     
-            if(Input.GetKeyDown(interactKeyI) && this.GetComponent<Inventario>().inventario.active == false) 
+            if(Input.GetKeyDown(interactKeyI)) 
             {
                 //print("Abrir Inventario");
-                this.GetComponent<Inventario>().inventario.SetActive(true);
+                this.GetComponent<Inventario>().inventario.SetActive(!this.GetComponent<Inventario>().inventario.activeSelf);
                 this.GetComponent<Inventario>().carregarInventario();
-            } else if(Input.GetKeyDown(interactKeyI) && this.GetComponent<Inventario>().inventario.active == true){
-                this.GetComponent<Inventario>().limparItensCarregados();
-                this.GetComponent<Inventario>().inventario.SetActive(false);
-
-            } 
+            }
+            if (Input.GetKeyDown(KeyCode.A))
+            {
+                player.attributesPanel.SetActive(!player.attributesPanel.activeSelf);
+                //strTxt = GameObject.Find ("StrengthText").GetComponent<Text>();
+                //resTxt = GameObject.Find ("ResistenceText").GetComponent<Text>();
+                //intTxt = GameObject.Find ("IntelligenceText").GetComponent<Text>();
+                //wilTxt = GameObject.Find ("WillpowerText").GetComponent<Text>();
+                //pointsTxt = GameObject.Find ("PointsValuesTxt").GetComponent<Text>();
+                player.UpdatePoints();
+            }
         }
     }
+
+    public void AttackBeast() {
+        //removeFlexa(1);
+        GameObject flechaTemp = Instantiate (prefabArraw, spawnArraw.position, spawnArraw.localRotation);
+        flechaTemp.transform.localScale = new Vector3 (flechaTemp.transform.localScale.x , flechaTemp.transform.localScale.y, flechaTemp.transform.localScale.z);
+        flechaTemp.GetComponent<Rigidbody2D>().velocity = new Vector2 ( speedArraw, 0);
+        Destroy (flechaTemp, 2f);
+    }
+
     public void UpdateAnimator(string animation){
         switch (animation)
         {

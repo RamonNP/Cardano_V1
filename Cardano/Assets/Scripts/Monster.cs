@@ -4,7 +4,6 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
  
-[RequireComponent(typeof(Rigidbody2D))]
 public class Monster : MonoBehaviour
 {
     private bool isWalking;
@@ -83,6 +82,8 @@ public class Monster : MonoBehaviour
  
     private void Update()
     {
+        if (entity.dead)
+            return;
         if(Input.GetKeyDown(KeyCode.Y)) {
             DropItem();
         }
@@ -97,8 +98,10 @@ public class Monster : MonoBehaviour
  
         healthSlider.value = entity.currentHealth;
  
-        if (!entity.inCombat)
+        if (!entity.inCombat && !entity.dead)
         {
+            //print("ATIVO O FALSEEEEE");
+            GetComponent<BoxCollider2D>().isTrigger = false;
             if(waypointList.Count > 0)
             {
                 Patrol();
@@ -111,6 +114,7 @@ public class Monster : MonoBehaviour
         }
         else
         {
+            GetComponent<BoxCollider2D>().isTrigger = true;
             if (entity.attackTimer > 0)
                 entity.attackTimer -= Time.deltaTime;
  
@@ -137,7 +141,7 @@ public class Monster : MonoBehaviour
         {
             entity.inCombat = true;
             entity.target = collider.gameObject;
-            entity.target.GetComponent<BoxCollider2D>().isTrigger = true;
+            //entity.target.GetComponent<BoxCollider2D>().isTrigger = true;
         }   
     }
  
@@ -148,7 +152,7 @@ public class Monster : MonoBehaviour
             entity.inCombat = false;
             if (entity.target)
             {
-                entity.target.GetComponent<BoxCollider2D>().isTrigger = false;
+                //entity.target.GetComponent<BoxCollider2D>().isTrigger = false;
                 entity.target = null;
             }
         }
@@ -230,6 +234,8 @@ public class Monster : MonoBehaviour
  
     void Die()
     {
+        GetComponent<BoxCollider2D>().isTrigger = true;
+        //entity.target.GetComponent<BoxCollider2D>().isTrigger = false;
         entity.dead = true;
         entity.inCombat = false;
         entity.target = null;
