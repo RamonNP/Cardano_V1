@@ -9,6 +9,10 @@ TagManager:
   - Teleport
   - HPSLider
   - Item
+  - Obstaculo
+  - Arma
+  - AlvoMonstro
+  - AlvoPlayer
   layers:
   - Default
   - TransparentFX
@@ -18,9 +22,9 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
-  - 
+  - Inimigo
+  - CorpoInimigo
+  - Player
   - 
   - 
   - 

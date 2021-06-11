@@ -1,152 +1,128 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
- 
+
 public class Monster : MonoBehaviour
 {
-    private bool isWalking;
+    public GameObject PersonagemFlip;
     public bool lookLeft;
-
-
-    [Header("Controller")]
     public Entity entity;
     public GameManager manager;
- 
-    [Header("Patrol")]
-    public List<Transform> waypointList;
-    public float arrivalDistance = 0.5f;
-    public float waitTime = 5;
-    public int waypointID;
- 
-    // Privates
-    Transform targetWapoint;
-    int currentWaypoint = 0;
-    float lastDistanceToTarget = 0f;
-    float currentWaitTime = 0f;
- 
-    [Header("Experience Reward")]
-    public int rewardExperience = 10;
-    public int lootGoldMin = 0;
-    public int lootGoldMax = 10;
- 
-    [Header("Respawn")]
-    public GameObject prefab;
-    public bool respawn = true;
-    public float respawnTime = 10f;
- 
+    public Animator animator;
+    Rigidbody2D rb2D;
+    public Vector3 homePosition;
+
+    public float speed;
+    public float maxRange;
+    public float minRange;
+    public bool flashActive;
     [Header("UI")]
     public Slider healthSlider;
- 
-    Rigidbody2D rb2D;
-    Animator animator;
-
-    //private NetworkManager networkManager;
- 
-    private void Start()
+    [Header("Experience Reward")]
+    public int rewardExperience = 10;
+    public string[] dropList;
+    public float respawnTime = 10f;
+    public GameObject prefab;
+    // Start is called before the first frame update
+    void Start()
     {
-        //networkManager = FindObjectOfType(typeof(NetworkManager)) as NetworkManager;
-        //networkManager = NetworkManager.instance;
+        homePosition = new Vector3(transform.position.x,transform.position.y,transform.position.z);
         rb2D = GetComponent<Rigidbody2D>();
         animator = this.transform.GetChild(0).GetComponent<Animator>();
         manager = GameObject.Find("GameManager").GetComponent<GameManager>();
- 
+
         entity.maxHealth = manager.CalculateHealth(entity);
         entity.maxMana = manager.CalculateMana(entity);
         entity.maxStamina = manager.CalculateStamina(entity);
  
-        entity.currentHealth = entity.maxHealth;
+        entity.CurrentHealth = entity.maxHealth;
         entity.currentMana = entity.maxMana;
         entity.currentStamina = entity.maxStamina;
  
         healthSlider.maxValue = entity.maxHealth;
         healthSlider.value = healthSlider.maxValue;
- 
-        foreach (GameObject obj in GameObject.FindGameObjectsWithTag("Waypoint"))
-        {
-            int ID = obj.GetComponent<WaypointID>().ID;
-            if (ID == waypointID)
-            {
-                waypointList.Add(obj.transform);
-            }
-        }
- 
-        currentWaitTime = waitTime;
-        if(waypointList.Count > 0)
-        {
-            targetWapoint = waypointList[currentWaypoint];
-            lastDistanceToTarget = Vector2.Distance(transform.position, targetWapoint.position);
-        }
     }
- 
-    private void Update()
+
+    // Update is called once per frame
+    void Update()
     {
         if (entity.dead)
             return;
         if(Input.GetKeyDown(KeyCode.Y)) {
             DropItem();
         }
-        if (entity.dead)
-            return;
+        if(entity.target != null) {
+            float distance = Vector3.Distance(entity.target.transform.position, transform.position);
+            //print(distance);
+            if(distance <= maxRange && distance >= minRange) {
+                FollowPlayer();
+                //print("Folow");
+            } else  if (distance >= maxRange){
+                //print("home");
+                GoHome();
+            } else if(distance <= minRange) {
+                if(entity.attackTimer == 0) {
+                    animator.SetTrigger("attack");
+                    entity.attackTimer = entity.cooldown;
+                }
+            }
+        }
+
+        //ATACK TIMER INICIO 
+        if (entity.attackTimer > 0)
+            entity.attackTimer -= Time.deltaTime;
  
-        if(entity.currentHealth <= 0)
+        if (entity.attackTimer < 0)
+            entity.attackTimer = 0;
+        //ATACK TIMER FIM 
+
+        if(entity.CurrentHealth <= 0)
         {
-            entity.currentHealth = 0;
+            entity.ReceberDano(0);
             Die();
         }
  
-        healthSlider.value = entity.currentHealth;
- 
-        if (!entity.inCombat && !entity.dead)
-        {
-            //print("ATIVO O FALSEEEEE");
-            GetComponent<BoxCollider2D>().isTrigger = false;
-            if(waypointList.Count > 0)
-            {
-                Patrol();
-            }
-            else
-            {
-                animator.SetBool("isWalking", false);
-                print("isWalking"+false);
-            }
-        }
-        else
-        {
-            GetComponent<BoxCollider2D>().isTrigger = true;
-            if (entity.attackTimer > 0)
-                entity.attackTimer -= Time.deltaTime;
- 
-            if (entity.attackTimer < 0)
-                entity.attackTimer = 0;
- 
-            if(entity.target != null && entity.inCombat)
-            {
-                // atacar
-                if (!entity.combatCoroutine)
-                    StartCoroutine(Attack());
-            }
-            else
-            {
-                entity.combatCoroutine = false;
-                StopCoroutine(Attack());
-            }
-        }
+        healthSlider.value = entity.CurrentHealth;
     }
- 
-    private void OnTriggerStay2D(Collider2D collider)
-    {
-        if(collider.tag == "Player" && !entity.dead)
+    public void GoHome() {
+        float distance = Vector3.Distance(homePosition, transform.position);
+        //Debug.Log(Mathf.Round(distance));
+        //print(distance);
+        if(distance < 0.1f){
+            animator.SetBool("isWalking", false);
+        } else {
+            Vector2 direction = (homePosition - transform.position).normalized;
+            Vector2 vc2 = homePosition;
+            rb2D.MovePosition(rb2D.position + direction * (entity.speed * Time.fixedDeltaTime));
+            VerificaFlipPatrol(direction.x);
+        }
+
+    }
+
+    public void FollowPlayer() {
+        animator.SetBool("isWalking", true);
+        Vector2 direction = (entity.target.transform.position - transform.position).normalized;
+        rb2D.MovePosition(rb2D.position + direction * (entity.speed * Time.fixedDeltaTime));
+        VerificaFlipPatrol(direction.x);
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision2d) {
+         print(collision2d.gameObject.tag + "ENTER");
+        switch (collision2d.gameObject.tag)
         {
-            entity.inCombat = true;
-            entity.target = collider.gameObject;
-            //entity.target.GetComponent<BoxCollider2D>().isTrigger = true;
-        }   
+            case "Player":
+                print(collision2d.gameObject.tag + "ENTER");
+                entity.target = collision2d.gameObject.GetComponent<Player>().gameObject;
+            break;
+            
+        }
     }
  
     private void OnTriggerExit2D(Collider2D collider)
     {
+        /*
+        print(collider.gameObject.tag + "EXIT");
         if (collider.tag == "Player")
         {
             entity.inCombat = false;
@@ -155,83 +131,24 @@ public class Monster : MonoBehaviour
                 //entity.target.GetComponent<BoxCollider2D>().isTrigger = false;
                 entity.target = null;
             }
-        }
+        } */
     }
- 
-    void Patrol()
+    private void Flip()
     {
-        if (entity.dead)
-            return;
- 
-        // calcular a distance do waypoint
-        float distanceToTarget = Vector2.Distance(transform.position, targetWapoint.position);
- 
-        if(distanceToTarget <= arrivalDistance || distanceToTarget >= lastDistanceToTarget)
-        {
- 
-            if(currentWaitTime <= 0)
-            {
-                currentWaypoint++;
- 
-                if (currentWaypoint >= waypointList.Count)
-                    currentWaypoint = 0;
- 
-                targetWapoint = waypointList[currentWaypoint];
-                lastDistanceToTarget = Vector2.Distance(transform.position, targetWapoint.position);
-                animator.SetBool("isWalking", false);
-                //print("isWalking Patrol"+false);
- 
-                currentWaitTime = waitTime;
-            }
-            else
-            {
-                currentWaitTime -= Time.deltaTime;
-            }
-        }
-        else
-        {
-            animator.SetBool("isWalking", true);
-            lastDistanceToTarget = distanceToTarget;
-        }
- 
-        Vector2 direction = (targetWapoint.position - transform.position).normalized;
-        VerificaFlipPatrol(direction.x);
- 
-        rb2D.MovePosition(rb2D.position + direction * (entity.speed * Time.fixedDeltaTime));
+        Vector3 theScale = PersonagemFlip.transform.localScale;
+        theScale.x *= -1;
+        PersonagemFlip.transform.localScale = theScale;
+        lookLeft = !lookLeft;
     }
- 
-    IEnumerator Attack()
-    {
-        entity.combatCoroutine = true;
- 
-        while (true)
-        {
-            yield return new WaitForSeconds(entity.cooldown);
- 
-            if (entity.target != null && !entity.target.GetComponent<Player>().entity.dead)
+    public void VerificaFlipPatrol(float x) {
+         if (x > 0 && lookLeft == true)
             {
-                animator.SetBool("attack", true);
- 
-                float distance = Vector2.Distance(entity.target.transform.position, transform.position);
- 
-                if (distance <= entity.attackDistance)
-                {
-                    int dmg = manager.CalculateDamage(entity, entity.damage);
-                    int targetDef = manager.CalculateDefense(entity.target.GetComponent<Player>().entity, entity.target.GetComponent<Player>().entity.defense);
-                    int dmgResult = dmg - targetDef;
- 
-                    if (dmgResult < 0)
-                        dmgResult = 0;
- 
-                    Debug.Log("Inimigo atacou o player, Dmg: " + dmgResult);
-                    entity.target.GetComponent<Player>().entity.currentHealth -= dmgResult;
-                    NetworkManager.instance.playerLocalInstance.GetComponent<PlayerController>().ShakeShoot();
-                    
-                }
+                Flip();
+            } else if(x < 0 && lookLeft == false)
+            {
+                Flip();
             }
-        }
     }
- 
     void Die()
     {
         GetComponent<BoxCollider2D>().isTrigger = true;
@@ -248,12 +165,11 @@ public class Monster : MonoBehaviour
         Player player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         player.GainExp(rewardExperience);
  
-        Debug.Log("O inimigo morreu: " + entity.name);
+        //Debug.Log("O inimigo morreu: " + entity.name);
         DropItem();
         StopAllCoroutines();
         StartCoroutine(Respawn());
     }
- 
     IEnumerator Respawn()
     {
         yield return new WaitForSeconds(respawnTime);
@@ -265,31 +181,18 @@ public class Monster : MonoBehaviour
         newMonster.GetComponent<Monster>().entity.combatCoroutine = false;
         Destroy(this.gameObject);
     }
-
-    private void Flip()
-    {
-        Vector3 theScale = transform.localScale;
-        theScale.x *= -1;
-        transform.localScale = theScale;
-        lookLeft = !lookLeft;
-    }
-    public void VerificaFlipPatrol(float x) {
-         if (x> 0 && lookLeft == true)
-            {
-                Flip();
-            } else if(x < 0 && lookLeft == false)
-            {
-                Flip();
-            }
-    }
-
     public void DropItem() {
-        int id = Random.Range(0, 3);
-        var loadedObject = Resources.Load("Prefabs/Helmets/" + "Helmet"+id);
-        if (loadedObject == null)
-        {
-            throw new FileNotFoundException("...no file found - please check the configuration");
-        }
+        int id = Random.Range(0, dropList.Length);
+        var loadedObject = Resources.Load(dropList[id]);
+        /*if(id == 1){
+            id = Random.Range(0, 3);
+            loadedObject = Resources.Load("Prefabs/Helmets/" + "Helmet"+id);
+        } else if(id == 2){
+            loadedObject = Resources.Load("Prefabs/Helmets/" + "Helmet"+id);
+        } else {
+            loadedObject = Resources.Load("Prefabs/Helmets/" + "Helmet"+id);
+        }  */
+
         Instantiate(loadedObject, this.transform.position, Quaternion.identity);
     }
 }

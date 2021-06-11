@@ -89,7 +89,7 @@ public class Player : MonoBehaviour
         entity.maxMana = manager.CalculateMana(entity);
         entity.maxStamina = manager.CalculateStamina(entity);
  
-        entity.currentHealth = entity.maxHealth;
+        entity.CurrentHealth = entity.maxHealth;
         entity.currentMana = entity.maxMana;
         entity.currentStamina = entity.maxStamina;
  
@@ -120,15 +120,16 @@ public class Player : MonoBehaviour
     {
         if (entity.dead)
             return;
- 
-        if (entity.currentHealth <= 0)
+        //if(!entity.flashActive)
+        //StartCoroutine(FlashEnum());
+        if (entity.CurrentHealth <= 0)
         {
             Die();
         }
         calcularEquipamentos();
         
  
-        health.value = entity.currentHealth;
+        health.value = entity.CurrentHealth;
         mana.value = entity.currentMana;
         stamina.value = entity.currentStamina;
  
@@ -137,6 +138,57 @@ public class Player : MonoBehaviour
  
         expText.text = String.Format("Exp: {0}/{1}", currentExp, expLeft);
         levelText.text = entity.level.ToString();
+    }
+    IEnumerator FlashEnum() {
+        if(entity.flashActive) {
+            entity.flashActive = false;
+            ChangeColor(GetComponent<PlayerController>().PersonagemFlip, false);
+            yield return new WaitForSeconds(1f);
+            ChangeColor(GetComponent<PlayerController>().PersonagemFlip, false);
+            yield return new WaitForSeconds(1);
+            
+        }
+
+    }
+    public void  Flash() {
+        if(entity.flashActive) {
+
+            if(entity.flashCounter > entity.flashLenght*.99f) {
+                ChangeColor(GetComponent<PlayerController>().PersonagemFlip, true);
+            } else if(entity.flashCounter > entity.flashLenght*.82f) {
+                ChangeColor(GetComponent<PlayerController>().PersonagemFlip, false);
+            } else if(entity.flashCounter > entity.flashLenght*.66f) {
+                ChangeColor(GetComponent<PlayerController>().PersonagemFlip, true);
+            } else if(entity.flashCounter > entity.flashLenght*.49f) {
+                ChangeColor(GetComponent<PlayerController>().PersonagemFlip, false);
+            } else if(entity.flashCounter > entity.flashLenght*.33f) {
+                ChangeColor(GetComponent<PlayerController>().PersonagemFlip, true);
+            } else if(entity.flashCounter > entity.flashLenght*.16f) {
+                ChangeColor(GetComponent<PlayerController>().PersonagemFlip, false);
+            } else if(entity.flashCounter > 0) {
+                ChangeColor(GetComponent<PlayerController>().PersonagemFlip, true);
+            } else {
+                //implementar percorrer sprits e muda a cor
+                entity.flashActive = false;
+            }
+            entity.flashCounter -= Time.deltaTime;
+        }
+    }
+    private void ChangeColor(GameObject obj, bool flash) {
+        foreach ( Transform child in obj.transform) {
+            SpriteRenderer sr = child.GetComponent<SpriteRenderer>();
+            print(child.gameObject.name + " - "+ flash +"-"+sr);
+            if(sr != null){
+                if(flash) {
+                    print(child.gameObject.name + "Normal");
+                    sr.color = new Color(255,255,255,255);
+                } else {
+                    print(child.gameObject.name + "Vermelho");
+                    sr.color = new Color(255,0,0,255);
+                }
+            }
+            ChangeColor(child.gameObject, flash);
+        }
     }
     private void calcularEquipamentos() {
         GameObject weapomPlayerEquipe = GetComponent<PlayerEquipController>().weapomPlayerEquipe;
@@ -157,10 +209,11 @@ public class Player : MonoBehaviour
         {
             if (regenHPEnabled)
             {
-                if (entity.currentHealth < entity.maxHealth)
+                if (entity.CurrentHealth < entity.maxHealth)
                 {
                     Debug.LogFormat("Recuperando HP do jogador");
-                    entity.currentHealth += regenHPValue;
+                    //entity.CurrentHealth += regenHPValue;
+                    entity.ReceberHp(regenHPValue);
                     yield return new WaitForSeconds(regenHPTime);
                 }
                 else
@@ -201,7 +254,7 @@ public class Player : MonoBehaviour
  
     void Die()
     {
-        entity.currentHealth = 0;
+        entity.CurrentHealth = 0;
         entity.dead = true;
         entity.target = null;
  
@@ -226,7 +279,7 @@ public class Player : MonoBehaviour
  
     public void GainExp(int amount)
     {
-        Debug.Log(amount);
+        //Debug.Log(amount);
         currentExp += amount;
         if (currentExp >= expLeft)
         {
@@ -241,7 +294,7 @@ public class Player : MonoBehaviour
         entity.points += givePoints;
         UpdatePoints();
  
-        entity.currentHealth = entity.maxHealth;
+        entity.CurrentHealth = entity.maxHealth;
  
         float newExp = Mathf.Pow((float)expMod, entity.level);
         expLeft = (int)Mathf.Floor((float)expBase * newExp);

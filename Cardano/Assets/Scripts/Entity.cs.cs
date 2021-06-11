@@ -13,7 +13,7 @@ public class Entity
     public int level;
  
     [Header("Health")]
-    public int currentHealth;
+    private int currentHealth;
     public int maxHealth;
  
     [Header("Mana")]
@@ -46,8 +46,28 @@ public class Entity
     public GameObject target;
     public bool combatCoroutine = false;
     public bool dead = false;
+    public bool flashActive;
+    [SerializeField]
+    public float flashLenght = 0f;
+    public float flashCounter = 0f;
  
     [Header("Component")]
     public AudioSource entityAudio;
+
+    public int CurrentHealth { get => currentHealth; set => currentHealth = value; }
+
+    public void ReceberDano(int dano ) {
+      flashActive = true;
+      flashCounter = flashLenght;
+      //Debug.Log(flashLenght +"--"+flashCounter);
+      currentHealth -= dano;
+      if(currentHealth < 0) {
+        currentHealth = 0;
+      }
+    }
+    public void ReceberHp(int hp ) {
+       currentHealth += hp;
+    }
+    
 
 }

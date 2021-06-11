@@ -1,0 +1,40 @@
+heroku logs --tail --app cardano-server
+heroku restart --app cardano-server
+
+Prefabs/Weapon/Sword/Sword1
+Prefabs/Weapon/Sword/Sword2
+Prefabs/Weapon/Sword/Sword3
+Prefabs/Weapon/Beast/Beast1
+Prefabs/Helmets/Helmet0
+Prefabs/Helmets/Helmet1
+Prefabs/Helmets/Helmet2
+Prefabs/Helmets/Helmet3
+
+    private void OnCollisionEnter2D(Collision2D other) {
+        print(other.gameObject.tag)
+        if (other.gameObject.tag == "Obstaculo")
+        {
+            currentWaypoint++;
+            targetWapoint = waypointList[currentWaypoint];
+        }
+        
+    }
+
+GameObject obj = new GameObject();
+        obj.transform.position = new Vector3(this.transform.position.x+2, this.transform.position.y, this.transform.position.z);
+        waypointList.Add(obj.transform);
+        obj = new GameObject();
+        obj.transform.position = new Vector3(this.transform.position.x-2, this.transform.position.y, this.transform.position.z);
+        waypointList.Add(obj.transform);
+        obj = new GameObject();
+        obj.transform.position = new Vector3(this.transform.position.x, this.transform.position.y+2, this.transform.position.z);
+        waypointList.Add(obj.transform);
+        obj = new GameObject();
+        obj.transform.position = new Vector3(this.transform.position.x, this.transform.position.y-2, this.transform.position.z);
+        waypointList.Add(obj.transform);
+		
+		
+		URGENTE!! Infelizmente não recomendo, pois estou há três meses tentando cancelar minha assinatura e disseram que sou obrigada a pagar os 12 meses. NÃO CAIAM NESSE GOLPE.
+QUAL O MOTIVO DE APAGAR O COMENTARIO????
+NÂO QUEREM QUE NIGUEM SAIBA?
+vou criar contas todos os dias, não adianta apagar o comentário e bloquear de comentar, vou postar isso ate cancelar minha assinatura.

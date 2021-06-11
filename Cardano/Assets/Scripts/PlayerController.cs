@@ -28,6 +28,7 @@ public class PlayerController : MonoBehaviour
 
     public float ShakeElapsedTime = 0f;
     [Header("Player")]
+    public GameObject targetAim;
     public Transform spawnArraw;
     public GameObject prefabArraw;
     public float speedArraw;
@@ -47,10 +48,15 @@ public class PlayerController : MonoBehaviour
     bool canTeleport = false;
     Region tmpRegion;
     private bool lastWalking;
+    public Vector3 posMouse;
+    public Vector3 playPosition;
+    private double angle;
+    public InventoryV2 inventoryV2;
  
     // Start is called before the first frame update
     void Start()
     {
+        inventoryV2 = new InventoryV2(UseItem);
         HelmetSprites = Resources.LoadAll<Sprite>("Helmet") ;
         //PlayerController new_player = Instantiate (NetworkManager.instance.playerPrefab, new Vector3 (0, 0, 0), Quaternion.identity).GetComponent<PlayerController> ();
         isWalking = false; 
@@ -61,6 +67,18 @@ public class PlayerController : MonoBehaviour
             virtualCameraNoise = VirtualCamera.GetCinemachineComponent<Cinemachine.CinemachineBasicMultiChannelPerlin>(); 
         }
         print(VirtualCamera);
+    }
+    private void UseItem(ItemV2 item) {
+        switch (item.itemType) {
+        case ItemType.HEALTH_POTION:
+            //FlashGreen();
+            inventoryV2.RemoveItem(new ItemV2 { itemType = ItemType.HEALTH_POTION, amount = 1 });
+            break;
+        case ItemType.MANA_POTION:
+            //FlashBlue();
+            inventoryV2.RemoveItem(new ItemV2 { itemType = ItemType.MANA_POTION, amount = 1 });
+            break;
+        }
     }
  
     // Update is called once per frame
@@ -78,7 +96,7 @@ public class PlayerController : MonoBehaviour
                 playerAnimator.SetFloat("input_x", input_x);
                 playerAnimator.SetFloat("input_y", input_y);
             }*/ 
-            VerificaFlip(input_x);
+            miraPersonagem();
             playerAnimator.SetBool("isWalking", isWalking);
             if(isWalking && (lastWalking != isWalking)){
                 NetworkManager.instance.EmitAnimation ("isWalking", GetComponent<Player>().entity.id);
@@ -93,22 +111,25 @@ public class PlayerController : MonoBehaviour
             else
                 player.entity.attackTimer -= Time.deltaTime;
     
-            if(player.entity.attackTimer == 0 && !isWalking)
+            if(player.entity.attackTimer == 0) //&& !isWalking)
             {
                 if (Input.GetButtonDown("Fire1"))
                 {
                     string atack;
                     if(GetComponent<PlayerEquipController>().weapomPlayerEquipe.GetComponent<Item>().itemType == ItemType.BEAST) {
                         atack = "attackBeast";
+                        playerAnimator.SetTrigger(atack);
+                        NetworkManager.instance.EmitAnimation (atack, GetComponent<Player>().entity.id);
+                        player.entity.attackTimer = player.entity.cooldown;
+                        AttackBeast();
                     } else {
                         atack = "attack";
+                        playerAnimator.SetTrigger(atack);
+                        NetworkManager.instance.EmitAnimation (atack, GetComponent<Player>().entity.id);
+                        player.entity.attackTimer = player.entity.cooldown;
+        
+                        Attack();
                     }
-                    playerAnimator.SetTrigger(atack);
-                    NetworkManager.instance.EmitAnimation (atack, GetComponent<Player>().entity.id);
-                    player.entity.attackTimer = player.entity.cooldown;
-    
-                    //Attack();
-                    AttackBeast();
                 }
             }    
             if(Input.GetKeyDown(interactKeySpace)) {
@@ -147,11 +168,71 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    
+    public void miraPersonagem() {
+        posMouse = GetCurrentMousePosition(Input.mousePosition);
+        targetAim.transform.position = posMouse;
+        playPosition =  PersonagemFlip.transform.position;//GetCurrentMousePosition(PersonagemFlip.transform.localScale);
+        if(posMouse.x > playPosition.x && lookLeft){
+            FlipMouse();
+        } else if(posMouse.x <  playPosition.x && !lookLeft) {
+            FlipMouse();
+        }
+
+        //Vector2 mousePosScreen = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        //Rigidbody2D rbWeapon = spawnArraw.gameObject.GetComponent<Rigidbody2D>();
+        //Vector3 positionSpawArrow = spawnArraw.position;
+        //Vector2 lookDir = posMouse - transform.position;
+        Vector3 persoPosirtion = PersonagemFlip.transform.position;
+        
+        if(PersonagemFlip.transform.localScale.x > 0){
+        } 
+        spawnArraw.transform.localScale = PersonagemFlip.transform.localScale;
+        Vector3 aimDrection = (posMouse - persoPosirtion).normalized;
+        angle = Math.Atan2(aimDrection.y, aimDrection.x) * Mathf.Rad2Deg;
+        
+        //angle = Vector3.Angle(spawnArraw.transform.forward, targetAim.transform.forward-spawnArraw.transform.position);
+        //print(angle);
+        //spawnArraw.transform.rotation =  Vector3.Angle(transform.forward, targetAim.transform.forward);
+        spawnArraw.transform.rotation = Quaternion.Euler(0,0,(float)angle);
+        GameObject weapon = GetComponent<PlayerEquipController>().weapomPlayerEquipe.GetComponent<Item>().gameObject;
+        if(weapon.GetComponent<Item>().itemType == ItemType.BEAST) {
+            weapon.transform.localScale = PersonagemFlip.transform.localScale;
+            weapon.transform.rotation = Quaternion.Euler(0,0,(float)angle);
+        } else {
+            //weapon.transform.localScale = PersonagemFlip.transform.localScale;
+            weapon.transform.rotation = Quaternion.Euler(0,0,0);
+        }
+    }
+    private Vector3 GetCurrentMousePosition(Vector3 pos)
+    {
+        var ray = Camera.main.ScreenPointToRay(pos);
+        var plane = new Plane(Vector3.forward, Vector3.zero);
+
+        float rayDistance;
+        if (plane.Raycast(ray, out rayDistance))
+        {
+            return ray.GetPoint(rayDistance);
+            
+        }
+
+        return new Vector3();
+    }
+    public void FlipMouse() {
+        Vector3 theScale = PersonagemFlip.transform.localScale;
+        theScale.x *= -1;
+        PersonagemFlip.transform.localScale = theScale;
+        lookLeft = !lookLeft;
+    }
+
     public void AttackBeast() {
+        Vector2 lookDirection = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         //removeFlexa(1);
         GameObject flechaTemp = Instantiate (prefabArraw, spawnArraw.position, spawnArraw.localRotation);
-        flechaTemp.transform.localScale = new Vector3 (flechaTemp.transform.localScale.x , flechaTemp.transform.localScale.y, flechaTemp.transform.localScale.z);
-        flechaTemp.GetComponent<Rigidbody2D>().velocity = new Vector2 ( speedArraw, 0);
+        //flechaTemp.transform.localScale = new Vector3 (flechaTemp.transform.localScale.x * PersonagemFlip.gameObject.transform.localScale.x, flechaTemp.transform.localScale.y, flechaTemp.transform.localScale.z);
+        flechaTemp.transform.rotation = Quaternion.Euler(0,0,(float)angle);
+        //flechaTemp.GetComponent<Rigidbody2D>().velocity = new Vector2 ( speedArraw * PersonagemFlip.gameObject.transform.localScale.x, 0);
+        flechaTemp.GetComponent<Rigidbody2D>().velocity = speedArraw * spawnArraw.right;
         Destroy (flechaTemp, 2f);
     }
 
@@ -204,6 +285,7 @@ public class PlayerController : MonoBehaviour
  
     private void OnTriggerEnter2D(Collider2D collider)
     {
+         
         if(collider.tag == "Enemy")
         {
             player.entity.target = collider.transform.gameObject;
@@ -246,6 +328,8 @@ public class PlayerController : MonoBehaviour
             return;
  
         Monster monster = player.entity.target.GetComponent<Monster>();
+        if (monster == null)
+            return;
  
         if (monster.entity.dead)
         {
@@ -264,14 +348,15 @@ public class PlayerController : MonoBehaviour
             if (result < 0)
                 result = 0;
  
-            Debug.Log("Player dmg: " + result.ToString());
-            monster.entity.currentHealth -= result;
+            //Debug.Log("Player dmg: " + result.ToString());
+            monster.entity.ReceberDano(result);
             monster.entity.target = this.gameObject;
         }
     }
 
     private void Flip()
     {
+        //USADO PELO SERVIDOR PARA ATUALIZAR POSIÇOES DE OUTROS JOGADORES
         Vector3 theScale = PersonagemFlip.transform.localScale;
         theScale.x *= -1;
         PersonagemFlip.transform.localScale = theScale;
@@ -283,7 +368,7 @@ public class PlayerController : MonoBehaviour
         ShakeElapsedTime = ShakeDuration;
     }
 
-    public void VerificaFlip(float x) {
+    public void VerificaFlipOLD(float x) {
 
 
          if (isWalking)
@@ -292,11 +377,11 @@ public class PlayerController : MonoBehaviour
             //playerAnimator.SetFloat("input_y", input_y);
             if (x > 0 && lookLeft == true)
             {
-                Flip();
+                //Flip();
                 //NetworkManager.instance.EmitAnimation ("Flip", x.ToString(), GetComponent<Player>().entity.id);
             } else if(x < 0 && lookLeft == false)
             {
-                Flip();
+                //Flip();
                 //NetworkManager.instance.EmitAnimation ("Flip", x.ToString(), GetComponent<Player>().entity.id);
             }
         }
