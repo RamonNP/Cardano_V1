@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
 using System;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody2D))]
  [RequireComponent(typeof(Player))]
@@ -52,11 +53,17 @@ public class PlayerController : MonoBehaviour
     public Vector3 playPosition;
     private double angle;
     public InventoryV2 inventoryV2;
- 
+    public UI_InventoryV2 uI_InventoryV2;
+    private PlayerEquipController playerEquipController;
+    public GameObject equip;
+
+    [SerializeField] private CharacterEquipment characterEquipment;
+
     // Start is called before the first frame update
     void Start()
     {
-        inventoryV2 = new InventoryV2(UseItem);
+        characterEquipment = GetComponent<CharacterEquipment>();
+        NetworkManager.instance.uiCharacterEquipment.SetCharacterEquipment(characterEquipment);
         HelmetSprites = Resources.LoadAll<Sprite>("Helmet") ;
         //PlayerController new_player = Instantiate (NetworkManager.instance.playerPrefab, new Vector3 (0, 0, 0), Quaternion.identity).GetComponent<PlayerController> ();
         isWalking = false; 
@@ -67,18 +74,90 @@ public class PlayerController : MonoBehaviour
             virtualCameraNoise = VirtualCamera.GetCinemachineComponent<Cinemachine.CinemachineBasicMultiChannelPerlin>(); 
         }
         print(VirtualCamera);
+        uI_InventoryV2 = NetworkManager.instance.uI_InventoryV2;
+        inventoryV2 = new InventoryV2(UseItem, 15);
+        uI_InventoryV2.SetInventory(inventoryV2);
+        playerEquipController = NetworkManager.instance.playerLocalInstance.GetComponent<PlayerEquipController>();
+        equip = NetworkManager.instance.equip;
+
+
+        print("INSTANTCIO");
+        ItensEntity itemJson;
+        NetworkManager.instance.itensDatabase.TryGetValue(1, out itemJson);
+        ItemWorldV2.SpawnItemWorld(new Vector3(1.7f, 1.2f), ItemV2.NewItemv2FromItemJson(itemJson));
+        NetworkManager.instance.itensDatabase.TryGetValue(2, out itemJson);
+        ItemWorldV2.SpawnItemWorld(new Vector3(1.7f, 0.9f), ItemV2.NewItemv2FromItemJson(itemJson));
+        NetworkManager.instance.itensDatabase.TryGetValue(3, out itemJson);
+        ItemWorldV2.SpawnItemWorld(new Vector3(1.7f, 0.3f), ItemV2.NewItemv2FromItemJson(itemJson));
+        NetworkManager.instance.itensDatabase.TryGetValue(4, out itemJson);
+        ItemWorldV2.SpawnItemWorld(new Vector3(1.7f, 0.3f), ItemV2.NewItemv2FromItemJson(itemJson));
+        NetworkManager.instance.itensDatabase.TryGetValue(4, out itemJson);
+        ItemWorldV2.SpawnItemWorld(new Vector3(1.7f, 0.3f), ItemV2.NewItemv2FromItemJson(itemJson));
+        NetworkManager.instance.itensDatabase.TryGetValue(4, out itemJson);
+        ItemWorldV2.SpawnItemWorld(new Vector3(1.7f, 0.3f), ItemV2.NewItemv2FromItemJson(itemJson));
     }
     private void UseItem(ItemV2 item) {
-        switch (item.itemType) {
-        case ItemType.HEALTH_POTION:
-            //FlashGreen();
-            inventoryV2.RemoveItem(new ItemV2 { itemType = ItemType.HEALTH_POTION, amount = 1 });
-            break;
-        case ItemType.MANA_POTION:
-            //FlashBlue();
-            inventoryV2.RemoveItem(new ItemV2 { itemType = ItemType.MANA_POTION, amount = 1 });
-            break;
-        }
+        print("USANDO ITEM"+item.itemType);
+        ItensEntity itemJson;
+        NetworkManager.instance.itensDatabase.TryGetValue(item.idItem, out itemJson);
+        int defense = itemJson.defense;
+        int atack = itemJson.atack;
+        Sprite sprite = Resources.Load<Sprite>(itemJson.pathSprite);
+        switch (item.itemType)
+            {
+                case ItemType.HELMET : 
+                    Item itemhelmet = playerEquipController.helmetPlayerEquipe.GetComponent<Item>();
+                    if(item.idItem == itemhelmet.idItem) {
+                        print("DESEQUIPAR O ITEM ANTES DE USAR");
+                        return;
+                    }
+                    print(" Este item " + item.idItem + " foi utilizado ");
+                    playerEquipController.helmetPlayerEquipe.SetActive(true);
+                    playerEquipController.helmetPlayerInventario.SetActive(true);
+                    itemhelmet.idItem = item.idItem;
+                    itemhelmet.defense = defense;
+                    itemhelmet.atack = atack;
+                    itemhelmet.itemType = ItemType.HELMET;
+                    playerEquipController.helmetPlayerEquipe.GetComponent<SpriteRenderer>().sprite = sprite;
+                    playerEquipController.helmetPlayerInventario.GetComponent<Image>().sprite = sprite;
+                break;
+                case ItemType.SWORD :
+                    Item itemWeapom = playerEquipController.helmetPlayerEquipe.GetComponent<Item>(); 
+                    print(" Este item " + item.idItem  + " foi utilizado ");
+                    playerEquipController.weapomPlayerEquipe.SetActive(true);
+                    playerEquipController.weapomPlayerInventario.SetActive(true);
+                    itemWeapom.idItem = item.idItem;
+                    itemWeapom.defense = defense;
+                    itemWeapom.atack = atack;
+                    itemWeapom.itemType = ItemType.SWORD;
+                    playerEquipController.weapomPlayerEquipe.GetComponent<SpriteRenderer>().sprite = sprite;
+                    playerEquipController.weapomPlayerInventario.GetComponent<Image>().sprite = sprite;
+                break;
+                case ItemType.BEAST : 
+                    print(" Este item " + item.idItem  + " foi utilizado ");
+                    playerEquipController.weapomPlayerEquipe.SetActive(true);
+                    playerEquipController.weapomPlayerInventario.SetActive(true);
+                    playerEquipController.weapomPlayerEquipe.GetComponent<Item>().idItem = item.idItem;
+                    playerEquipController.weapomPlayerEquipe.GetComponent<Item>().defense = defense;
+                    playerEquipController.weapomPlayerEquipe.GetComponent<Item>().atack = atack;
+                    playerEquipController.weapomPlayerEquipe.GetComponent<Item>().itemType = ItemType.BEAST;
+                    playerEquipController.weapomPlayerEquipe.GetComponent<SpriteRenderer>().sprite = sprite;
+                    playerEquipController.weapomPlayerInventario.GetComponent<Image>().sprite = sprite;
+                break;
+                case ItemType.HEALTH_POTION:
+                    FlashGreen();
+                    inventoryV2.RemoveItem(item);
+                break;
+                case ItemType.MANA_POTION:
+                    //FlashBlue();
+                    inventoryV2.RemoveItem(item);
+                break;
+            }
+
+        //playerController.usarItemArma(idItem);
+    }
+    public void FlashGreen() {
+        playerAnimator.SetTrigger("healtPotion");
     }
  
     // Update is called once per frame
@@ -139,7 +218,7 @@ public class PlayerController : MonoBehaviour
                     
                     //sasa
                     print("ALTERAR CAMINHO FIXO");
-                    this.GetComponent<Inventario>().itemInventario.Add(player.itemColetavel.GetComponent<Item>().pathItem);
+                    //this.GetComponent<Inventario>().itemInventario.Add(player.itemColetavel.GetComponent<Item>().pathItem);
                     Destroy(player.itemColetavel);
                     player.itemColetavel = null;
                 }
@@ -296,10 +375,7 @@ public class PlayerController : MonoBehaviour
             tmpRegion = collider.GetComponent<Teleport>().region;
             canTeleport = true;
         }
-        if (collider.tag == "Item")
-        {
-            player.itemColetavel = collider.gameObject;
-        }
+       
     }
  
     private void OnTriggerExit2D(Collider2D collider)

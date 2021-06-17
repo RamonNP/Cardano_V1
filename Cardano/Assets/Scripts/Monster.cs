@@ -108,11 +108,11 @@ public class Monster : MonoBehaviour
     }
 
     private void OnTriggerEnter2D(Collider2D collision2d) {
-         print(collision2d.gameObject.tag + "ENTER");
+        //print(collision2d.gameObject.tag + "ENTER");
         switch (collision2d.gameObject.tag)
         {
             case "Player":
-                print(collision2d.gameObject.tag + "ENTER");
+                //print(collision2d.gameObject.tag + "ENTER");
                 entity.target = collision2d.gameObject.GetComponent<Player>().gameObject;
             break;
             
@@ -183,7 +183,11 @@ public class Monster : MonoBehaviour
     }
     public void DropItem() {
         int id = Random.Range(0, dropList.Length);
-        var loadedObject = Resources.Load(dropList[id]);
+        ItensEntity itemJson;
+        NetworkManager.instance.itensDatabase.TryGetValue(id, out itemJson);
+        ItemV2 item = ItemV2.NewItemv2FromItemJson(itemJson);
+        ItemWorldV2.DropItem(this.transform.position, item);
+        //var loadedObject = Resources.Load(dropList[id]);
         /*if(id == 1){
             id = Random.Range(0, 3);
             loadedObject = Resources.Load("Prefabs/Helmets/" + "Helmet"+id);
@@ -193,6 +197,6 @@ public class Monster : MonoBehaviour
             loadedObject = Resources.Load("Prefabs/Helmets/" + "Helmet"+id);
         }  */
 
-        Instantiate(loadedObject, this.transform.position, Quaternion.identity);
+        //Instantiate(loadedObject, this.transform.position, Quaternion.identity);
     }
 }
