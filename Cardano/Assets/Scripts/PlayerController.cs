@@ -47,13 +47,17 @@ public class PlayerController : MonoBehaviour
     public KeyCode interactKeyI = KeyCode.I;
     public KeyCode interactKeySpace = KeyCode.Space;
     bool canTeleport = false;
-    Region tmpRegion;
+    Teleport tmpRegion;
     private bool lastWalking;
     public Vector3 posMouse;
     public Vector3 playPosition;
     private double angle;
-    public InventoryV2 inventoryV2;
-    public UI_InventoryV2 uI_InventoryV2;
+    public InventoryV2 inventoryV2_1;
+    public InventoryV2 inventoryV2_2;
+    public InventoryV2 inventoryV2_3;
+    public UI_InventoryV2 uI_1_InventoryV2;
+    public UI_InventoryV2 uI_2_InventoryV2;
+    public UI_InventoryV2 uI_3_InventoryV2;
     private PlayerEquipController playerEquipController;
     public GameObject equip;
 
@@ -73,10 +77,22 @@ public class PlayerController : MonoBehaviour
         if (VirtualCamera != null){
             virtualCameraNoise = VirtualCamera.GetCinemachineComponent<Cinemachine.CinemachineBasicMultiChannelPerlin>(); 
         }
-        print(VirtualCamera);
-        uI_InventoryV2 = NetworkManager.instance.uI_InventoryV2;
-        inventoryV2 = new InventoryV2(UseItem, 15);
-        uI_InventoryV2.SetInventory(inventoryV2);
+        //print(VirtualCamera);
+        uI_1_InventoryV2 = NetworkManager.instance.uI_1_InventoryV2;
+        inventoryV2_1 = new InventoryV2(UseItem, 15);
+        uI_1_InventoryV2.SetInventory(inventoryV2_1);
+
+        uI_2_InventoryV2 = NetworkManager.instance.uI_2_InventoryV2;
+        inventoryV2_2 = new InventoryV2(UseItem, 15);
+        uI_2_InventoryV2.SetInventory(inventoryV2_2);
+
+        uI_3_InventoryV2 = NetworkManager.instance.uI_3_InventoryV2;
+        inventoryV2_3 = new InventoryV2(UseItem, 15);
+        uI_3_InventoryV2.SetInventory(inventoryV2_3);
+
+
+
+
         playerEquipController = NetworkManager.instance.playerLocalInstance.GetComponent<PlayerEquipController>();
         equip = NetworkManager.instance.equip;
 
@@ -146,11 +162,11 @@ public class PlayerController : MonoBehaviour
                 break;
                 case ItemType.HEALTH_POTION:
                     FlashGreen();
-                    inventoryV2.RemoveItem(item);
+                    inventoryV2_1.RemoveItem(item);
                 break;
                 case ItemType.MANA_POTION:
                     //FlashBlue();
-                    inventoryV2.RemoveItem(item);
+                    inventoryV2_1.RemoveItem(item);
                 break;
             }
 
@@ -226,7 +242,8 @@ public class PlayerController : MonoBehaviour
             }
             if(canTeleport && tmpRegion != null && Input.GetKeyDown(interactKey)) 
             {
-                this.transform.position = tmpRegion.warpLocation.position;
+                //this.transform.position = tmpRegion.warpLocation.position;
+                tmpRegion.interacao(this.gameObject);
             }     
             if(Input.GetKeyDown(interactKeyI)) 
             {
@@ -365,6 +382,10 @@ public class PlayerController : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collider)
     {
          
+        if(collider.tag == "RoomOpen")
+        {
+            collider.transform.GetChild(0).gameObject.SetActive(true);
+        }
         if(collider.tag == "Enemy")
         {
             player.entity.target = collider.transform.gameObject;
@@ -372,7 +393,7 @@ public class PlayerController : MonoBehaviour
  
         if(collider.tag == "Teleport")
         {
-            tmpRegion = collider.GetComponent<Teleport>().region;
+            tmpRegion = collider.GetComponent<Teleport>();
             canTeleport = true;
         }
        

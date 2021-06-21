@@ -168,7 +168,8 @@ public class Monster : MonoBehaviour
         //Debug.Log("O inimigo morreu: " + entity.name);
         DropItem();
         StopAllCoroutines();
-        StartCoroutine(Respawn());
+        Destroy(this.gameObject, 1);
+        //StartCoroutine(Respawn());
     }
     IEnumerator Respawn()
     {
@@ -182,9 +183,10 @@ public class Monster : MonoBehaviour
         Destroy(this.gameObject);
     }
     public void DropItem() {
-        int id = Random.Range(0, dropList.Length);
+        int id = Random.Range(1, dropList.Length);
         ItensEntity itemJson;
         NetworkManager.instance.itensDatabase.TryGetValue(id, out itemJson);
+        //print("ID DO ITEM CORRIGIR ERRO aconse de vez enquando nupointer"+ id);
         ItemV2 item = ItemV2.NewItemv2FromItemJson(itemJson);
         ItemWorldV2.DropItem(this.transform.position, item);
         //var loadedObject = Resources.Load(dropList[id]);

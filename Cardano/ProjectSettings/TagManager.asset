@@ -13,6 +13,11 @@ TagManager:
   - Arma
   - AlvoMonstro
   - AlvoPlayer
+  - ApawnPoint
+  - Rooms
+  - ClosedWall
+  - SpawnPoint
+  - RoomOpen
   layers:
   - Default
   - TransparentFX
