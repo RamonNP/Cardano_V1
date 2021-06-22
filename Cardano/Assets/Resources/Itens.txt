@@ -1,0 +1,4 @@
+###ID;NOME;TIPO;PATH_PREFAB;PATH_SPRITE;DEFESA;ATAQUE;$
+0001;Adaga de Bronze;2;Prefabs/ItemWord;Assets/Resources/Armas/Espadas/201-adaga_bronze;3;2;$
+0002;Adaga de Prata;2;Prefabs/ItemWord;Assets/Resources/Armas/Espadas/202-adaga_prata;5;3;$
+0003;Adaga de Ouro;2;Prefabs/ItemWord;Assets/Resources/Armas/Espadas/203-adaga_ouro;8;5;$

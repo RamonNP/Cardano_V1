@@ -1,0 +1,150 @@
+{
+    "Itens":
+    [
+        {
+            "idItem": "0001",
+            "itemName": "Adaga de Bronze",
+            "itemType": "2",
+            "pathItem": "Prefabs/ItemWord",
+            "pathSprite": "Armas/Espadas/201-adaga_bronze",
+            "defense": "3",
+            "atack": "2"
+        },
+        {
+            "idItem": "0002",
+            "itemName": "Adaga de Prata",
+            "itemType": "2",
+            "pathItem": "Prefabs/ItemWord",
+            "pathSprite": "Armas/Espadas/202-adaga_prata",
+            "defense": "5",
+            "atack": "3"
+        },
+        {
+            "idItem": "0003",
+            "itemName": "Adaga de Ouro",
+            "itemType": "2",
+            "pathItem": "Prefabs/ItemWord",
+            "pathSprite": "Armas/Espadas/203-adaga_ouro",
+            "defense": "8",
+            "atack": "5"
+        },
+        {
+            "idItem": "0004",
+            "itemName": "Healt Potion",
+            "itemType": "7",
+            "pathItem": "Prefabs/ItemWord",
+            "pathSprite": "pocoes/HealthPotion",
+            "defense": "0",
+            "atack": "0"
+        },
+        {
+            "idItem": "0005",
+            "itemName": "Armor Blue",
+            "itemType": "1",
+            "pathItem": "Prefabs/ItemWord",
+            "pathSprite": "Armor/armor blue",
+            "defense": "2",
+            "atack": "2"
+        },
+        {
+            "idItem": "0006",
+            "itemName": "Armor Gold",
+            "itemType": "1",
+            "pathItem": "Prefabs/ItemWord",
+            "pathSprite": "Armor/armor gold",
+            "defense": "5",
+            "atack": "5"
+        },
+        {
+            "idItem": "0007",
+            "itemName": "Armor Green",
+            "itemType": "1",
+            "pathItem": "Prefabs/ItemWord",
+            "pathSprite": "Armor/armor green",
+            "defense": "3",
+            "atack": "3"
+        },
+        {
+            "idItem": "0008",
+            "itemName": "Armor Silver",
+            "itemType": "1",
+            "pathItem": "Prefabs/ItemWord",
+            "pathSprite": "Armor/armor silver",
+            "defense": "4",
+            "atack": "4"
+        },
+        {
+            "idItem": "0009",
+            "itemName": "Dark Knight Helmet",
+            "itemType": "0",
+            "pathItem": "Prefabs/ItemWord",
+            "pathSprite": "Helmet/000-Capacete Dark Knight",
+            "defense": "2",
+            "atack": "2"
+        },
+        {
+            "idItem": "0010",
+            "itemName": "Gold Helmet",
+            "itemType": "0",
+            "pathItem": "Prefabs/ItemWord",
+            "pathSprite": "Helmet/001-capacete1",
+            "defense": "3",
+            "atack": "3"
+        },
+        {
+            "idItem": "0011",
+            "itemName": "Barbarian Bronze Helmet",
+            "itemType": "0",
+            "pathItem": "Prefabs/ItemWord",
+            "pathSprite": "Helmet/002-capacete barbaro bronze",
+            "defense": "4",
+            "atack": "4"
+        },
+        {
+            "idItem": "0012",
+            "itemName": "Dark Helmet ",
+            "itemType": "0",
+            "pathItem": "Prefabs/ItemWord",
+            "pathSprite": "Helmet/003-Capacete Dark Knight 3",
+            "defense": "5",
+            "atack": "5"
+        },
+        {
+            "idItem": "0013",
+            "itemName": "Dark Helmet Mino",
+            "itemType": "0",
+            "pathItem": "Prefabs/ItemWord",
+            "pathSprite": "Helmet/004-Capacete Dark Knight 2",
+            "defense": "6",
+            "atack": "6"
+        },
+        {
+            "idItem": "0014",
+            "itemName": "Gold Shield",
+            "itemType": "5",
+            "pathItem": "Prefabs/ItemWord",
+            "pathSprite": "Escudos/escudo_ouro",
+            "defense": "8",
+            "atack": "0"
+        },
+        {
+            "idItem": "0015",
+            "itemName": "Cross Shield",
+            "itemType": "5",
+            "pathItem": "Prefabs/ItemWord",
+            "pathSprite": "Escudos/escudo_cruz",
+            "defense": "10",
+            "atack": "0"
+        },
+        {
+            "idItem": "0016",
+            "itemName": "Blue Beast",
+            "itemType": "3",
+            "pathItem": "Prefabs/ItemWord",
+            "pathSprite": "Armas/Bestas/besta azul",
+            "defense": "0",
+            "atack": "10"
+        }
+    ]
+  }
+

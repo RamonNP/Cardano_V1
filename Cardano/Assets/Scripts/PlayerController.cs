@@ -10,7 +10,7 @@ using UnityEngine.UI;
 public class PlayerController : MonoBehaviour
 {
     public bool lookLeft;
-    public Sprite[] HelmetSprites;
+    public Sprite[] HelmetSprites;//opa
 
     //[HideInInspector] 
     [Header("Atalhos HUD")]
@@ -53,11 +53,8 @@ public class PlayerController : MonoBehaviour
     public Vector3 playPosition;
     private double angle;
     public InventoryV2 inventoryV2_1;
-    public InventoryV2 inventoryV2_2;
-    public InventoryV2 inventoryV2_3;
+
     public UI_InventoryV2 uI_1_InventoryV2;
-    public UI_InventoryV2 uI_2_InventoryV2;
-    public UI_InventoryV2 uI_3_InventoryV2;
     private PlayerEquipController playerEquipController;
     public GameObject equip;
 
@@ -79,17 +76,8 @@ public class PlayerController : MonoBehaviour
         }
         //print(VirtualCamera);
         uI_1_InventoryV2 = NetworkManager.instance.uI_1_InventoryV2;
-        inventoryV2_1 = new InventoryV2(UseItem, 15);
+        inventoryV2_1 = new InventoryV2(UseItem, 45);
         uI_1_InventoryV2.SetInventory(inventoryV2_1);
-
-        uI_2_InventoryV2 = NetworkManager.instance.uI_2_InventoryV2;
-        inventoryV2_2 = new InventoryV2(UseItem, 15);
-        uI_2_InventoryV2.SetInventory(inventoryV2_2);
-
-        uI_3_InventoryV2 = NetworkManager.instance.uI_3_InventoryV2;
-        inventoryV2_3 = new InventoryV2(UseItem, 15);
-        uI_3_InventoryV2.SetInventory(inventoryV2_3);
-
 
 
 

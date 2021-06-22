@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class Monster : MonoBehaviour
 {
+    public static Action<Monster> OnEnemyDeath = delegate {  };
+    [SerializeField]    private MonsterType monsterType;
     public GameObject PersonagemFlip;
     public bool lookLeft;
     public Entity entity;
@@ -24,6 +27,9 @@ public class Monster : MonoBehaviour
     public string[] dropList;
     public float respawnTime = 10f;
     public GameObject prefab;
+
+    public MonsterType GetMonsterType { get => monsterType;}
+
     // Start is called before the first frame update
     void Start()
     {
@@ -151,6 +157,7 @@ public class Monster : MonoBehaviour
     }
     void Die()
     {
+        OnEnemyDeath?.Invoke(this);
         GetComponent<BoxCollider2D>().isTrigger = true;
         //entity.target.GetComponent<BoxCollider2D>().isTrigger = false;
         entity.dead = true;
@@ -183,7 +190,7 @@ public class Monster : MonoBehaviour
         Destroy(this.gameObject);
     }
     public void DropItem() {
-        int id = Random.Range(1, dropList.Length);
+        int id = UnityEngine.Random.Range(1, dropList.Length);
         ItensEntity itemJson;
         NetworkManager.instance.itensDatabase.TryGetValue(id, out itemJson);
         //print("ID DO ITEM CORRIGIR ERRO aconse de vez enquando nupointer"+ id);
@@ -201,4 +208,16 @@ public class Monster : MonoBehaviour
 
         //Instantiate(loadedObject, this.transform.position, Quaternion.identity);
     }
+}
+public enum MonsterType
+{
+    Dragon = 0,
+    Balrog = 1,
+    Wraith = 2,
+    Ent = 3,
+    Manticore = 4,
+    King = 5,
+    Minotaur = 6,
+    Cyclop = 7,
+    Demon = 8
 }
