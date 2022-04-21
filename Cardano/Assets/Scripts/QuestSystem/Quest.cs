@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace QuestSystem
 {
+    [Serializable]
     public class Quest
     {
         public static event Action<Quest> OnQuestCompleted = delegate { };

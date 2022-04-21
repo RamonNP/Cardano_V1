@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 { 
+    public static event Action<Player> OnStatsChanged = delegate {  };
    public Entity entity;
    public GameObject itemColetavel;
  
@@ -285,6 +286,7 @@ public class Player : MonoBehaviour
         {
             LevelUp();
         }
+        OnStatsChanged?.Invoke(this);
     }
  
     public void LevelUp()

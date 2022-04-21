@@ -46,19 +46,20 @@ public class NetworkManager : MonoBehaviour
 
 			socket = GetComponent<SocketIOComponent> ();
 
-			socket.On ("PONG",OnReceivePong);
+			//socket.On ("PONG",OnReceivePong);
 
-			socket.On ("JOIN_SUCCESS", OnJoinSuccess);
+			//socket.On ("JOIN_SUCCESS", OnJoinSuccess);
 
-			socket.On ("SPAWN_PLAYER",OnSpawnPlayer);
+			//socket.On ("SPAWN_PLAYER",OnSpawnPlayer);
 
-			socket.On ("UPDATE_POS_ROT",OnUpdatePosAndRot);
+			//socket.On ("UPDATE_POS_ROT",OnUpdatePosAndRot);
 
-			socket.On ("UPDATE_ANIMATOR",OnUpdateAnimator );
+			//socket.On ("UPDATE_ANIMATOR",OnUpdateAnimator );
 
-			socket.On ("USER_DISCONNECTED",OnUserDisconnected);
+			//socket.On ("USER_DISCONNECTED",OnUserDisconnected);
 
 			SendPingToServer();
+			print("Mandei PINGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG");
 		}
 		else
 		{
@@ -83,7 +84,11 @@ public class NetworkManager : MonoBehaviour
 
 		pack["message"] = "ping!!!";
 
-		socket.Emit ("PING", new JSONObject (pack));//send to nodejs server
+		socket.Emit ("", new JSONObject (pack));//send to nodejs server
+		socket.Emit ("", new JSONObject (pack));//send to nodejs server
+		socket.Emit ("", new JSONObject (pack));//send to nodejs server
+		socket.Emit ("", new JSONObject (pack));//send to nodejs server
+		
 
 	}
 

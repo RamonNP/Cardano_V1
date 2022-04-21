@@ -19,7 +19,7 @@ namespace QuestSystem
         [SerializeField] private UnityEvent onQuestDisabled;
         [SerializeField] private UnityEvent onQuestEnabled;
         
-        private Quest newQuest;
+        [SerializeField] private Quest newQuest;
         private bool questIsAvailable;
 
         private void OnEnable()
@@ -37,10 +37,12 @@ namespace QuestSystem
         {
             if(!questIsAvailable) return;
             OnQuestSelecting(newQuest);
+            Debug.Log("SelectNewQuest"+newQuest.QuestName);
         }
 
         public void UnselectNewQuest()
         {
+            Debug.Log("UnselectNewQuest");
             if(!questIsAvailable) return;
             OnQuestUnselecting();
         }

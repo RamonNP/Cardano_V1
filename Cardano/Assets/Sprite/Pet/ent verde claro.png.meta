@@ -41,6 +41,8 @@ TextureImporter:
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -50,8 +52,8 @@ TextureImporter:
   textureSettings:
     serializedVersion: 2
     filterMode: 0
-    aniso: -1
-    mipBias: -100
+    aniso: 1
+    mipBias: 0
     wrapU: 1
     wrapV: 1
     wrapW: 1
@@ -72,9 +74,12 @@ TextureImporter:
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
   maxTextureSizeSet: 0
   compressionQualitySet: 0
   textureFormatSet: 0
+  ignorePngGamma: 0
   applyGammaDecoding: 0
   platformSettings:
   - serializedVersion: 3
@@ -144,20 +149,32 @@ TextureImporter:
       tessellationDetail: 0
       bones:
       - name: bone_1
+        guid: 
         position: {x: 1.8906555, y: 1.8074913, z: 0}
         rotation: {x: 0, y: 0, z: 0.04431371, w: 0.99901766}
         length: 5.6883445
         parentId: -1
+        color:
+          serializedVersion: 2
+          rgba: 0
       - name: bone_2
+        guid: 
         position: {x: 2.0165653, y: 5.333006, z: 0}
         rotation: {x: 0, y: 0, z: 0, w: 1}
         length: 6.0437374
         parentId: -1
+        color:
+          serializedVersion: 2
+          rgba: 0
       - name: bone_3
+        guid: 
         position: {x: 6.0437374, y: 0, z: 0}
         rotation: {x: 0, y: 0, z: -0.9998153, w: 0.019219602}
         length: 3.2761118
         parentId: 1
+        color:
+          serializedVersion: 2
+          rgba: 0
       spriteID: 833b7a2ccd2018780800000000000000
       internalID: -8682655459411774664
       vertices:
@@ -337,10 +354,14 @@ TextureImporter:
       tessellationDetail: 0
       bones:
       - name: bone_1
+        guid: 
         position: {x: 9.903248, y: 0.27999115, z: 0}
         rotation: {x: 0, y: 0, z: 0.714433, w: 0.6997039}
         length: 12.090096
         parentId: -1
+        color:
+          serializedVersion: 2
+          rgba: 0
       spriteID: 07658ce35417582e0800000000000000
       internalID: -2124167107015322000
       vertices:
@@ -529,10 +550,14 @@ TextureImporter:
       tessellationDetail: 0
       bones:
       - name: bone_1
+        guid: 
         position: {x: 0.9761429, y: 5.207094, z: 0}
         rotation: {x: 0, y: 0, z: -0.69693625, w: 0.7171331}
         length: 4.408691
         parentId: -1
+        color:
+          serializedVersion: 2
+          rgba: 0
       spriteID: d72539f73719aec70800000000000000
       internalID: 9001166730500985469
       vertices:
@@ -673,10 +698,14 @@ TextureImporter:
       tessellationDetail: 0
       bones:
       - name: bone_1
+        guid: 
         position: {x: 1.6120872, y: 0.8083067, z: 0}
         rotation: {x: 0, y: 0, z: -0.7480459, w: 0.663647}
         length: 0.7325857
         parentId: -1
+        color:
+          serializedVersion: 2
+          rgba: 0
       spriteID: 43fa605f6c89dfe40800000000000000
       internalID: 5691873484347977524
       vertices: []
@@ -699,10 +728,14 @@ TextureImporter:
       tessellationDetail: 0
       bones:
       - name: bone_1
+        guid: 
         position: {x: 1.0894241, y: 0.8664961, z: 0}
         rotation: {x: 0, y: 0, z: -0.8259538, w: 0.56373787}
         length: 0.71858597
         parentId: -1
+        color:
+          serializedVersion: 2
+          rgba: 0
       spriteID: 3aa0549102b30db10800000000000000
       internalID: 2004166843228818083
       vertices: []
@@ -725,10 +758,14 @@ TextureImporter:
       tessellationDetail: 0
       bones:
       - name: bone_1
+        guid: 
         position: {x: 3.2630854, y: 6.340294, z: 0}
         rotation: {x: 0, y: 0, z: -0.7747246, w: 0.6322988}
         length: 5.6548004
         parentId: -1
+        color:
+          serializedVersion: 2
+          rgba: 0
       spriteID: bfec39f11854996c0800000000000000
       internalID: -4136198361880211717
       vertices:
@@ -901,6 +938,13 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
+    nameFileIdTable:
+      ent verde claro_1: -2124167107015322000
+      ent verde claro_5: -4136198361880211717
+      ent verde claro_3: 5691873484347977524
+      ent verde claro_0: -8682655459411774664
+      ent verde claro_4: 2004166843228818083
+      ent verde claro_2: 9001166730500985469
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
